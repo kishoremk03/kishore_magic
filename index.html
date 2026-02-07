@@ -1,99 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8" />
   <title>Magic Photo AR</title>
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
-  <!-- A-Frame -->
-  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <!-- A-Frame (stable CDN) -->
+  <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
 
   <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
-    :root {
-      --vh: 100vh;
-    }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: var(--vh);
-      overflow: hidden;
-      background: black;
-    }
-
-    a-scene {
-      width: 100% !important;
-      height: var(--vh) !important;
-      position: fixed !important;
-      top: 0;
-      left: 0;
-    }
+    body { margin: 0; overflow: hidden; }
   </style>
 </head>
 
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.001; filterBeta: 1000;"
-  vr-mode-ui="enabled:false"
-  device-orientation-permission-ui="enabled:true"
-  renderer="antialias:true; colorManagement:true">
-
-
+  mindar-image="imageTargetSrc: ./targets.mind;"
+  embedded
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: true"
+  renderer="antialias: true; colorManagement: true;">
 
   <a-assets>
     <video
-      id="vid"
+      id="arVideo"
       src="video.mp4"
-      loop
+      preload="auto"
       muted
       playsinline
-      webkit-playsinline>
+      webkit-playsinline
+      loop>
     </video>
   </a-assets>
 
-  <a-camera 
-    look-controls="enabled:false"
-    camera="facingMode: environment">
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false">
   </a-camera>
 
+  <!-- Target 0 -->
   <a-entity mindar-image-target="targetIndex: 0">
-    <a-plane
-      material="shader: flat; src: #vid"
-      width="1.2"
-      height="0.675"
-      position="0 0 0">
-    </a-plane>
+    <a-video
+      src="#arVideo"
+      position="0 0 0"
+      width="1"
+      height="0.5625"
+      rotation="0 0 0">
+    </a-video>
   </a-entity>
 
 </a-scene>
 
 <script>
-  // ✅ ANDROID VIEWPORT FIX (THIS IS THE KEY)
-  function setViewportHeight() {
-    const vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh * 100}px`);
-  }
-  setViewportHeight();
-  window.addEventListener('resize', setViewportHeight);
-  window.addEventListener('orientationchange', setViewportHeight);
-
-  const video = document.querySelector("#vid");
+  const video = document.getElementById("arVideo");
   const scene = document.querySelector("a-scene");
 
-  // Mobile unlock
+  // REQUIRED: user gesture unlock
   document.body.addEventListener("click", () => {
-    video.play().then(() => video.pause()).catch(() => {});
-  });
+    video.play().catch(() => {});
+  }, { once: true });
 
   scene.addEventListener("targetFound", () => {
-    video.currentTime = 0;
-    video.play();
+    video.play().catch(err => console.log("play blocked", err));
   });
 
   scene.addEventListener("targetLost", () => {
@@ -103,5 +74,3 @@
 
 </body>
 </html>
-
-
