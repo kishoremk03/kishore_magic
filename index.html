@@ -39,11 +39,11 @@
 <body>
 
 <a-scene
-  mindar-image="imageTargetSrc: ./targets.mind;"
+  mindar-image="imageTargetSrc: ./targets.mind; filterMinCF: 0.001; filterBeta: 1000;"
   vr-mode-ui="enabled:false"
   device-orientation-permission-ui="enabled:true"
-  renderer="antialias:true; colorManagement:true"
-  embedded="false">
+  renderer="antialias:true; colorManagement:true">
+
 
 
   <a-assets>
@@ -57,7 +57,10 @@
     </video>
   </a-assets>
 
-  <a-camera look-controls="enabled:false"></a-camera>
+  <a-camera 
+    look-controls="enabled:false"
+    camera="facingMode: environment">
+  </a-camera>
 
   <a-entity mindar-image-target="targetIndex: 0">
     <a-plane
@@ -100,4 +103,5 @@
 
 </body>
 </html>
+
 
