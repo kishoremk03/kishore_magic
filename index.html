@@ -9,18 +9,17 @@
 
   <style>
     body { margin: 0; overflow: hidden; }
-
     #soundBtn {
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 12px 18px;
-      font-size: 16px;
+      padding: 10px 16px;
       background: #00c853;
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 6px;
+      font-size: 15px;
       z-index: 9999;
     }
   </style>
@@ -36,82 +35,78 @@
   device-orientation-permission-ui="enabled:true">
 
   <a-assets>
-    <!-- Videos for each target -->
-    <video id="vid0" src="video1.mp4" loop muted playsinline></video>
-    <video id="vid1" src="video2.mp4" loop muted playsinline></video>
-    <video id="vid2" src="video3.mp4" loop muted playsinline></video>
+    <!-- ONE video reused for all targets -->
+    <video
+      id="video"
+      src="video.mp4"
+      preload="auto"
+      muted
+      playsinline
+      webkit-playsinline
+      loop>
+    </video>
   </a-assets>
 
   <a-camera look-controls="enabled:false"></a-camera>
 
-  <!-- TARGET 0 : 9:16 (portrait) -->
+  <!-- TARGET 0 -->
   <a-entity mindar-image-target="targetIndex: 0">
-    <a-plane
-      material="shader: flat; src: #vid0; transparent: true; opacity: 0"
+    <a-video
+      src="#video"
       width="0.56"
       height="1"
-      animation="property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutCubic">
-    </a-plane>
+      position="0 0 0"
+      animation="property: material.opacity; from: 0; to: 1; dur: 500">
+    </a-video>
   </a-entity>
 
-  <!-- TARGET 1 : 16:9 (landscape) -->
+  <!-- TARGET 1 -->
   <a-entity mindar-image-target="targetIndex: 1">
-    <a-plane
-      material="shader: flat; src: #vid1; transparent: true; opacity: 0"
-      width="1"
-      height="0.5625"
-      animation="property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutCubic">
-    </a-plane>
+    <a-video
+      src="#video"
+      width="0.56"
+      height="1"
+      position="0 0 0"
+      animation="property: material.opacity; from: 0; to: 1; dur: 500">
+    </a-video>
   </a-entity>
 
-  <!-- TARGET 2 : 1:1 (square) -->
+  <!-- TARGET 2 -->
   <a-entity mindar-image-target="targetIndex: 2">
-    <a-plane
-      material="shader: flat; src: #vid2; transparent: true; opacity: 0"
-      width="1"
+    <a-video
+      src="#video"
+      width="0.56"
       height="1"
-      animation="property: material.opacity; from: 0; to: 1; dur: 600; easing: easeOutCubic">
-    </a-plane>
+      position="0 0 0"
+      animation="property: material.opacity; from: 0; to: 1; dur: 500">
+    </a-video>
   </a-entity>
 
 </a-scene>
 
 <script>
+  const video = document.getElementById("video");
   const soundBtn = document.getElementById("soundBtn");
-  const videos = [
-    document.getElementById("vid0"),
-    document.getElementById("vid1"),
-    document.getElementById("vid2")
-  ];
+  const scene = document.querySelector("a-scene");
 
   let audioEnabled = false;
-  let activeIndex = null;
 
-  // Enable audio (does NOT play video)
+  // Enable audio only
   soundBtn.onclick = () => {
     audioEnabled = true;
-    videos.forEach(v => v.muted = false);
+    video.muted = false;
     soundBtn.style.display = "none";
   };
 
-  const scene = document.querySelector("a-scene");
-
-  scene.addEventListener("targetFound", e => {
-    activeIndex = e.detail.targetIndex;
-    const video = videos[activeIndex];
-
+  scene.addEventListener("targetFound", () => {
     video.currentTime = 0;
-    video.play().catch(()=>{});
+    video.play().catch(() => {});
   });
 
-  scene.addEventListener("targetLost", e => {
-    const index = e.detail.targetIndex;
-    videos[index].pause();
-    activeIndex = null;
+  scene.addEventListener("targetLost", () => {
+    video.pause();
   });
 </script>
 
-
 </body>
 </html>
-
