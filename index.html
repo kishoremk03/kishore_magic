@@ -1,32 +1,44 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>Magic Photo AR</title>
 
-  <!-- A-Frame (stable CDN) -->
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-
-  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
     body { margin: 0; overflow: hidden; }
+
+    #soundBtn {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 18px;
+      font-size: 16px;
+      background: #00c853;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      z-index: 9999;
+    }
   </style>
 </head>
 
 <body>
 
+<button id="soundBtn">🔊 Enable Sound</button>
+
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind;"
   embedded
   vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: true"
-  renderer="antialias: true; colorManagement: true;">
+  device-orientation-permission-ui="enabled: true">
 
   <a-assets>
     <video
-      id="arVideo"
+      id="video"
       src="video.mp4"
       preload="auto"
       muted
@@ -36,40 +48,38 @@
     </video>
   </a-assets>
 
-  <a-camera
-    position="0 0 0"
-    look-controls="enabled: false">
-  </a-camera>
+  <a-camera look-controls="enabled:false"></a-camera>
 
-  <!-- Target 0 -->
   <a-entity mindar-image-target="targetIndex: 0">
     <a-video
-      src="#arVideo"
-      position="0 0 0"
+      src="#video"
       width="1"
       height="0.5625"
-      rotation="0 0 0">
+      position="0 0 0">
     </a-video>
   </a-entity>
 
 </a-scene>
 
 <script>
-  const video = document.getElementById("arVideo");
-  const scene = document.querySelector("a-scene");
+  const video = document.getElementById("video");
+  const soundBtn = document.getElementById("soundBtn");
 
-  // REQUIRED: user gesture unlock
-  document.body.addEventListener("click", () => {
-    video.play().catch(() => {});
-  }, { once: true });
-
-  scene.addEventListener("targetFound", () => {
-    video.play().catch(err => console.log("play blocked", err));
+  // Play when target found
+  document.querySelector("a-scene").addEventListener("targetFound", () => {
+    video.play().catch(()=>{});
   });
 
-  scene.addEventListener("targetLost", () => {
+  document.querySelector("a-scene").addEventListener("targetLost", () => {
     video.pause();
   });
+
+  // Enable audio ONLY via button
+  soundBtn.onclick = () => {
+    video.muted = false;
+    video.play();
+    soundBtn.style.display = "none";
+  };
 </script>
 
 </body>
