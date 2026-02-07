@@ -1,27 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Magic Photo AR</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+
+  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
+    :root {
+      --vh: 100vh;
+    }
+
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
+      height: var(--vh);
       overflow: hidden;
       background: black;
     }
 
     a-scene {
       width: 100% !important;
-      height: 100% !important;
+      height: var(--vh) !important;
       position: fixed !important;
       top: 0;
       left: 0;
@@ -33,9 +40,9 @@
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind;"
-  vr-mode-ui="enabled: false"
-  device-orientation-permission-ui="enabled: false"
-  renderer="antialias: true; colorManagement: true">
+  vr-mode-ui="enabled:false"
+  device-orientation-permission-ui="enabled:false"
+  renderer="antialias:true; colorManagement:true">
 
   <a-assets>
     <video
@@ -50,7 +57,6 @@
 
   <a-camera look-controls="enabled:false"></a-camera>
 
-  <!-- Single video plane -->
   <a-entity mindar-image-target="targetIndex: 0">
     <a-plane
       material="shader: flat; src: #vid"
@@ -63,19 +69,29 @@
 </a-scene>
 
 <script>
-  const video = document.querySelector("#vid");
+  // ✅ ANDROID VIEWPORT FIX (THIS IS THE KEY)
+  function setViewportHeight() {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh * 100}px`);
+  }
+  setViewportHeight();
+  window.addEventListener('resize', setViewportHeight);
+  window.addEventListener('orientationchange', setViewportHeight);
 
-  // Required mobile unlock
+  const video = document.querySelector("#vid");
+  const scene = document.querySelector("a-scene");
+
+  // Mobile unlock
   document.body.addEventListener("click", () => {
     video.play().then(() => video.pause()).catch(() => {});
   });
 
-  document.querySelector("a-scene").addEventListener("targetFound", () => {
+  scene.addEventListener("targetFound", () => {
     video.currentTime = 0;
     video.play();
   });
 
-  document.querySelector("a-scene").addEventListener("targetLost", () => {
+  scene.addEventListener("targetLost", () => {
     video.pause();
   });
 </script>
