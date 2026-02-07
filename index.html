@@ -84,23 +84,34 @@
     document.getElementById("vid2")
   ];
 
-  // Play correct video when target is found
-  document.querySelector("a-scene").addEventListener("targetFound", e => {
-    const index = e.detail.targetIndex;
-    videos[index].play().catch(()=>{});
-  });
+  let audioEnabled = false;
+  let activeIndex = null;
 
-  document.querySelector("a-scene").addEventListener("targetLost", e => {
-    const index = e.detail.targetIndex;
-    videos[index].pause();
-  });
-
-  // Enable audio only via button
+  // Enable audio (does NOT play video)
   soundBtn.onclick = () => {
+    audioEnabled = true;
     videos.forEach(v => v.muted = false);
     soundBtn.style.display = "none";
   };
+
+  const scene = document.querySelector("a-scene");
+
+  scene.addEventListener("targetFound", e => {
+    activeIndex = e.detail.targetIndex;
+    const video = videos[activeIndex];
+
+    video.currentTime = 0;
+    video.play().catch(()=>{});
+  });
+
+  scene.addEventListener("targetLost", e => {
+    const index = e.detail.targetIndex;
+    videos[index].pause();
+    activeIndex = null;
+  });
 </script>
+
 
 </body>
 </html>
+
