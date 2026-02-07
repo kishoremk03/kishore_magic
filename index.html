@@ -1,15 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="utf-8">
   <title>Magic Photo AR</title>
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 
-  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-
-  <!-- MindAR -->
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
   <style>
@@ -20,27 +17,19 @@
       height: 100%;
       overflow: hidden;
       background: black;
-      touch-action: manipulation;
     }
 
-    /* Simple instruction text */
-    #hint {
-      position: fixed;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      color: white;
-      font-size: 14px;
-      z-index: 9999;
-      pointer-events: none;
-      opacity: 0.8;
+    a-scene {
+      width: 100% !important;
+      height: 100% !important;
+      position: fixed !important;
+      top: 0;
+      left: 0;
     }
   </style>
 </head>
 
 <body>
-
-<div id="hint">Tap once to enable audio, then scan the image</div>
 
 <a-scene
   mindar-image="imageTargetSrc: ./targets.mind;"
@@ -55,14 +44,13 @@
       loop
       muted
       playsinline
-      webkit-playsinline
-      crossorigin="anonymous">
+      webkit-playsinline>
     </video>
   </a-assets>
 
   <a-camera look-controls="enabled:false"></a-camera>
 
-  <!-- Aspect-ratio locked video (16:9) -->
+  <!-- Single video plane -->
   <a-entity mindar-image-target="targetIndex: 0">
     <a-plane
       material="shader: flat; src: #vid"
@@ -76,32 +64,18 @@
 
 <script>
   const video = document.querySelector("#vid");
-  const scene = document.querySelector("a-scene");
-  const hint = document.querySelector("#hint");
 
-  let audioUnlocked = false;
-
-  // 🔓 REQUIRED user interaction for audio
+  // Required mobile unlock
   document.body.addEventListener("click", () => {
-    if (audioUnlocked) return;
-
-    video.muted = false;
-    video.play().then(() => {
-      video.pause();
-      audioUnlocked = true;
-      hint.innerText = "Scan the image";
-      setTimeout(() => hint.style.display = "none", 2000);
-    }).catch(() => {});
+    video.play().then(() => video.pause()).catch(() => {});
   });
 
-  scene.addEventListener("targetFound", () => {
-    if (audioUnlocked) {
-      video.currentTime = 0;
-      video.play();
-    }
+  document.querySelector("a-scene").addEventListener("targetFound", () => {
+    video.currentTime = 0;
+    video.play();
   });
 
-  scene.addEventListener("targetLost", () => {
+  document.querySelector("a-scene").addEventListener("targetLost", () => {
     video.pause();
   });
 </script>
